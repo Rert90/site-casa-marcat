@@ -1,89 +1,154 @@
+/* Resetare de bază pentru a asigura consistența pe orice browser de tabletă */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Elimină flash-ul albastru la atingere pe Android */
+}
+
+:root {
+    /* Definim mărimea de bază a fontului. 1rem va fi 16px. */
+    font-size: 16px; 
+}
+
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: #ffffff;
     margin: 0;
     padding: 0;
+    color: #222;
+    /* Previne scroll-ul lateral accidental */
+    overflow-x: hidden;
 }
 
 .app-container {
+    width: 100%;
     max-width: 100%;
-    margin: auto;
-    padding: 20px;
+    margin: 0 auto;
 }
 
+/* Secțiunea de sus fixată (Header) */
 .header-section {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrează lupa și input-ul */
+    align-items: center;
     position: sticky;
     top: 0;
     background: white;
-    padding: 20px 0;
+    padding: 1.5rem 0;
     z-index: 1000;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 0.125rem solid #f0f0f0; /* 2px */
 }
 
+/* Container-ul pentru Search Bar */
 .search-wrapper {
     position: relative;
-    width: 90%;
-    max-width: 600px;
+    width: 92%;
+    max-width: 40rem; /* Aproximativ 640px */
 }
 
+/* Pictograma lupă */
 .search-icon {
     position: absolute;
-    left: 20px;
+    left: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 24px;
+    font-size: 1.5rem; /* Lupa mare, vizibilă */
+    pointer-events: none;
 }
 
+/* Input-ul propriu-zis (Lupa) */
 #searchInput {
     width: 100%;
-    padding: 18px 20px 18px 60px; /* Spațiu pentru lupă */
-    font-size: 22px;
-    border: 3px solid #333;
-    border-radius: 50px; /* Formă ovală modernă */
+    padding: 1.125rem 1.25rem 1.125rem 4rem; /* Spațiu generos în stânga pentru lupă */
+    font-size: 1.375rem; /* Font mare pentru citire ușoară (22px) */
+    border: 0.1875rem solid #333; /* Border gros pentru contrast */
+    border-radius: 3.125rem; /* Formă ovală de tip "pill" */
     outline: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.1);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+#searchInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0.25rem 1.25rem rgba(0,123,255,0.2);
+}
+
+/* Status-ul de sub search (Total produse / Găsite) */
 #status {
-    margin-top: 15px;
-    color: #888;
-    font-size: 14px;
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
 }
 
+/* Tabelul de date */
 .table-container {
-    margin-top: 20px;
+    width: 100%;
+    padding: 0 1rem;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 0.5rem;
+    table-layout: fixed; /* Ajută la performanța randării pe mobil */
 }
 
 th {
     background-color: #f8f9fa;
     color: #333;
-    padding: 15px;
+    padding: 1rem;
     text-align: left;
-    border-bottom: 2px solid #333;
+    border-bottom: 0.1875rem solid #333; /* 3px */
+    font-size: 1.125rem; /* 18px */
 }
 
 td {
-    padding: 18px 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 18px;
-    color: #222;
+    padding: 1.5rem 1rem; /* Padding mare pentru a fi ușor de nimerit rândul cu degetul */
+    border-bottom: 0.0625rem solid #eee; /* 1px */
+    font-size: 1.1875rem; /* Font optim pentru tabletă (aprox 19px) */
+    word-wrap: break-word; /* Previne ieșirea textului lung din celulă */
 }
 
-tr:nth-child(even) { background-color: #fafafa; }
+/* Evidențierea ID-ului (Numărului) */
+td strong {
+    color: #007bff;
+    font-family: monospace; /* Aspect de cod/serie */
+    font-size: 1.25rem;
+}
 
-.hidden { display: none; }
+/* Efect vizual pentru rânduri alternante */
+tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Stare activă la atingere pentru feedback vizual pe tabletă */
+tr:active {
+    background-color: #e9f5ff;
+}
+
+/* Mesaj când nu există rezultate */
+.hidden {
+    display: none;
+}
 
 #noResults {
     text-align: center;
-    padding: 50px;
-    font-size: 20px;
-    color: #ccc;
+    padding: 4rem 2rem;
+    font-size: 1.25rem;
+    color: #bbb;
+}
+
+/* Optimizări specifice pentru ecrane de tabletă (landscape vs portrait) */
+@media (max-width: 600px) {
+    #searchInput {
+        font-size: 1.125rem;
+        padding-left: 3.5rem;
+    }
+    
+    td {
+        font-size: 1rem;
+        padding: 1.25rem 0.75rem;
+    }
 }
