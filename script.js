@@ -1,3 +1,34 @@
+// SHA-256 hash of "1985"
+const PIN_HASH = 'bd307a3ec329e10a2cff8fb87480823da114f8f4e753d28958762f1888ee0690';
+
+async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+(async function initLock() {
+    const lockScreen = document.getElementById('lockScreen');
+    const pinInput = document.getElementById('pinInput');
+    const pinSubmit = document.getElementById('pinSubmit');
+    const pinError = document.getElementById('pinError');
+
+    async function tryUnlock() {
+        const hash = await sha256(pinInput.value);
+        if (hash === PIN_HASH) {
+            lockScreen.classList.add('unlocked');
+            document.getElementById('searchInput').focus();
+        } else {
+            pinError.textContent = 'PIN incorect. Încearcă din nou.';
+            pinInput.value = '';
+            pinInput.focus();
+        }
+    }
+
+    pinSubmit.addEventListener('click', tryUnlock);
+    pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+    pinInput.focus();
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('tableBody');
     const searchInput = document.getElementById('searchInput');
