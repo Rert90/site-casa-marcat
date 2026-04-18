@@ -1,4 +1,3 @@
-// SHA-256 hash of "1985"
 const PIN_HASH = '78e370b587b145920213731b7c7c725e512b3b6577c51c800218a7c764c532ae';
 
 async function sha256(str) {
