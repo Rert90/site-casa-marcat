@@ -1,154 +1,118 @@
-/* Resetare de bază pentru a asigura consistența pe orice browser de tabletă */
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Elimină flash-ul albastru la atingere pe Android */
+:root {
+    font-size: 16px;
+    --primary-color: #007bff;
+    --bg-color: #f8f9fa;
+    --text-color: #333;
 }
 
-:root {
-    /* Definim mărimea de bază a fontului. 1rem va fi 16px. */
-    font-size: 16px; 
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #ffffff;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
     margin: 0;
-    padding: 0;
-    color: #222;
-    /* Previne scroll-ul lateral accidental */
-    overflow-x: hidden;
+    color: var(--text-color);
 }
 
-.app-container {
+/* Stiluri Ecran Login */
+#loginScreen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
+}
+
+.login-box {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.3);
+    text-align: center;
+    width: 90%;
+    max-width: 25rem;
+}
+
+.lock-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+.login-box h2 { margin: 0 0 0.5rem 0; color: #444; }
+
+.login-box p { color: #777; margin-bottom: 1.5rem; }
+
+#passwordInput {
     width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    padding: 1rem;
+    font-size: 1.5rem;
+    border: 2px solid #ddd;
+    border-radius: 0.75rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    outline: none;
 }
 
-/* Secțiunea de sus fixată (Header) */
+#passwordInput:focus { border-color: var(--primary-color); }
+
+#loginBtn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.25rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#loginError { color: #dc3545; margin-top: 1rem; font-weight: bold; }
+
+/* Stiluri Aplicație Principală */
 .header-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     position: sticky;
     top: 0;
     background: white;
-    padding: 1.5rem 0;
-    z-index: 1000;
-    border-bottom: 0.125rem solid #f0f0f0; /* 2px */
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100;
+    border-bottom: 1px solid #ddd;
 }
 
-/* Container-ul pentru Search Bar */
-.search-wrapper {
-    position: relative;
-    width: 92%;
-    max-width: 40rem; /* Aproximativ 640px */
-}
+.search-wrapper { position: relative; width: 100%; max-width: 40rem; }
 
-/* Pictograma lupă */
 .search-icon {
     position: absolute;
     left: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1.5rem; /* Lupa mare, vizibilă */
-    pointer-events: none;
+    font-size: 1.5rem;
 }
 
-/* Input-ul propriu-zis (Lupa) */
 #searchInput {
     width: 100%;
-    padding: 1.125rem 1.25rem 1.125rem 4rem; /* Spațiu generos în stânga pentru lupă */
-    font-size: 1.375rem; /* Font mare pentru citire ușoară (22px) */
-    border: 0.1875rem solid #333; /* Border gros pentru contrast */
-    border-radius: 3.125rem; /* Formă ovală de tip "pill" */
+    padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+    font-size: 1.25rem;
+    border: 2px solid #333;
+    border-radius: 3rem;
     outline: none;
-    box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.1);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
 }
 
-#searchInput:focus {
-    border-color: #007bff;
-    box-shadow: 0 0.25rem 1.25rem rgba(0,123,255,0.2);
-}
+#status { margin-top: 0.75rem; font-size: 0.875rem; color: #888; }
 
-/* Status-ul de sub search (Total produse / Găsite) */
-#status {
-    margin-top: 1rem;
-    color: #666;
-    font-size: 0.875rem; /* 14px */
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-}
+.table-container { padding: 1rem; }
 
-/* Tabelul de date */
-.table-container {
-    width: 100%;
-    padding: 0 1rem;
-}
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 0.5rem; overflow: hidden; }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.5rem;
-    table-layout: fixed; /* Ajută la performanța randării pe mobil */
-}
+th { background: #333; color: white; padding: 1rem; text-align: left; }
 
-th {
-    background-color: #f8f9fa;
-    color: #333;
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 0.1875rem solid #333; /* 3px */
-    font-size: 1.125rem; /* 18px */
-}
+td { padding: 1.25rem 1rem; border-bottom: 1px solid #eee; font-size: 1.1rem; }
 
-td {
-    padding: 1.5rem 1rem; /* Padding mare pentru a fi ușor de nimerit rândul cu degetul */
-    border-bottom: 0.0625rem solid #eee; /* 1px */
-    font-size: 1.1875rem; /* Font optim pentru tabletă (aprox 19px) */
-    word-wrap: break-word; /* Previne ieșirea textului lung din celulă */
-}
+td strong { color: var(--primary-color); }
 
-/* Evidențierea ID-ului (Numărului) */
-td strong {
-    color: #007bff;
-    font-family: monospace; /* Aspect de cod/serie */
-    font-size: 1.25rem;
-}
+tr:nth-child(even) { background-color: #fafafa; }
 
-/* Efect vizual pentru rânduri alternante */
-tr:nth-child(even) {
-    background-color: #fafafa;
-}
+.hidden { display: none !important; }
 
-/* Stare activă la atingere pentru feedback vizual pe tabletă */
-tr:active {
-    background-color: #e9f5ff;
-}
-
-/* Mesaj când nu există rezultate */
-.hidden {
-    display: none;
-}
-
-#noResults {
-    text-align: center;
-    padding: 4rem 2rem;
-    font-size: 1.25rem;
-    color: #bbb;
-}
-
-/* Optimizări specifice pentru ecrane de tabletă (landscape vs portrait) */
-@media (max-width: 600px) {
-    #searchInput {
-        font-size: 1.125rem;
-        padding-left: 3.5rem;
-    }
-    
-    td {
-        font-size: 1rem;
-        padding: 1.25rem 0.75rem;
-    }
-}
+#noResults { text-align: center; padding: 3rem; color: #999; font-size: 1.25rem; }

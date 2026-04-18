@@ -2,26 +2,37 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Căutare Produse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catalog Produse - Privat</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="app-container">
+    <div id="loginScreen">
+        <div class="login-box">
+            <div class="lock-icon">🔒</div>
+            <h2>Acces Restricționat</h2>
+            <p>Introduceți codul pentru a vizualiza catalogul</p>
+            <input type="password" id="passwordInput" placeholder="Cod de acces" inputmode="numeric">
+            <button id="loginBtn">Accesare</button>
+            <div id="loginError" class="hidden">Cod incorect! Încercați din nou.</div>
+        </div>
+    </div>
+
+    <div id="mainContent" class="hidden">
         <div class="header-section">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Caută produse..." autofocus>
+                <input type="text" id="searchInput" placeholder="Caută produse (ex: profil glax)..." autocomplete="off">
             </div>
-            <div id="status">Se încarcă...</div>
+            <div id="status">Se încarcă baza de date...</div>
         </div>
 
         <div class="table-container">
-            <table id="productTable">
+            <table>
                 <thead>
                     <tr>
-                        <th style="width: 20%;">Nr.</th>
+                        <th style="width: 25%;">Cod/Nr.</th>
                         <th>Denumire Produs</th>
                     </tr>
                 </thead>
@@ -30,7 +41,9 @@
             </table>
         </div>
         
-        <div id="noResults" class="hidden">Nu am găsit rezultate.</div>
+        <div id="noResults" class="hidden">
+            <p>Nu am găsit niciun produs care să conțină acești termeni.</p>
+        </div>
     </div>
 
     <script src="script.js"></script>
