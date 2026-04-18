@@ -1,39 +1,41 @@
-// Parola "1985" encodată (MTk4NQ==)
+
 const COD_ACCES_ENCODAT = "MTk4NQ=="; 
 
-// Funcția principală de verificare
+// Funcția de verificare parolă
 function checkPassword() {
-    console.log("Buton apăsat!"); // Verificare în consolă
-    
     const inputField = document.getElementById('passwordInput');
     const errorMsg = document.getElementById('loginError');
     
     if (!inputField) return;
 
     const parolaIntrodusa = inputField.value.trim();
-    const inputEncodat = btoa(parolaIntrodusa);
-
-    if (inputEncodat === COD_ACCES_ENCODAT) {
-        console.log("Parolă corectă!");
+    if (btoa(parolaIntrodusa) === COD_ACCES_ENCODAT) {
         sessionStorage.setItem('isAuthorized', 'true');
         runApp();
     } else {
-        console.log("Parolă greșită!");
         errorMsg.classList.remove('hidden');
         errorMsg.style.display = "block";
         inputField.value = "";
     }
 }
 
-// Funcția care încarcă datele
+// Funcția de încărcare date
 async function runApp() {
     try {
         const response = await fetch('data.db');
         if (!response.ok) throw new Error("Fișierul data.db nu a putut fi găsit.");
         
-        const base64Content = await response.text();
-const cleanBase64 = base64Content.replace(/\s/g, ''); // Elimină spații, tab-uri, rânduri noi
-const decodedCSV = decodeURIComponent(escape(atob(cleanBase64)));base64Content.trim());
+        let base64Content = await response.text();
+        // Curățăm codul de spații sau caractere ciudate
+        base64Content = base64Content.replace(/[^A-Za-z0-9+/=]/g, "");
+        
+        // Decodificare sigură pentru diacritice
+        const binaryString = atob(base64Content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const decodedCSV = new TextDecoder('utf-8').decode(bytes);
         
         const lines = decodedCSV.split(/\r?\n/).filter(line => line.trim() !== "");
         
@@ -47,29 +49,31 @@ const decodedCSV = decodeURIComponent(escape(atob(cleanBase64)));base64Content.t
 
         renderTable(window.catalogProduse);
 
-        // Afișare interfață
         document.getElementById('loginScreen').style.display = "none";
         document.getElementById('mainContent').classList.remove('hidden');
         document.getElementById('status').textContent = `Total: ${window.catalogProduse.length}`;
 
     } catch (err) {
-        alert("Eroare: " + err.message);
+        alert("Eroare la date: " + err.message);
     }
 }
 
 function renderTable(date) {
     const tableBody = document.getElementById('tableBody');
     if (!tableBody) return;
-    tableBody.innerHTML = date.map(p => `
-        <tr>
-            <td><strong>${p.id}</strong></td>
-            <td>${p.nume}</td>
-        </tr>
-    `).join('');
+    tableBody.innerHTML = date.map(p => `<tr><td><strong>${p.id}</strong></td><td>${p.nume}</td></tr>`).join('');
 }
 
-// Logica de căutare
-document.addEventListener('input', (e) => {
+// Gestionare evenimente (Click și Enter)
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'loginBtn') checkPassword();
+});
+
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && e.target.id === 'passwordInput') checkPassword();
+});
+
+document.addEventListener('input', function(e) {
     if (e.target.id === 'searchInput') {
         const query = e.target.value.toLowerCase().trim().split(/\s+/);
         const randuri = document.querySelectorAll('#tableBody tr');
@@ -77,7 +81,7 @@ document.addEventListener('input', (e) => {
 
         randuri.forEach(rand => {
             const textRand = rand.textContent.toLowerCase();
-            const match = query.every(cuvant => textRand.includes(cuvant));
+            const match = query.every(word => textRand.includes(word));
             rand.style.display = match ? "" : "none";
             if (match) gasite++;
         });
@@ -86,21 +90,8 @@ document.addEventListener('input', (e) => {
     }
 });
 
-// ATAȘARE EVENIMENTE - VARIANTA SIGURĂ
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'loginBtn') {
-        checkPassword();
-    }
-});
-
-document.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && e.target.id === 'passwordInput') {
-        checkPassword();
-    }
-});
-
-// Verificare sesiune la încărcare
-window.onload = () => {
+// Verificare sesiune la refresh
+window.onload = function() {
     if (sessionStorage.getItem('isAuthorized') === 'true') {
         runApp();
     }
