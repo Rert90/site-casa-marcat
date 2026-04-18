@@ -32,7 +32,8 @@ async function runApp() {
         if (!response.ok) throw new Error("Fișierul data.db nu a putut fi găsit.");
         
         const base64Content = await response.text();
-        const decodedCSV = atob(base64Content.trim());
+const cleanBase64 = base64Content.replace(/\s/g, ''); // Elimină spații, tab-uri, rânduri noi
+const decodedCSV = decodeURIComponent(escape(atob(cleanBase64)));base64Content.trim());
         
         const lines = decodedCSV.split(/\r?\n/).filter(line => line.trim() !== "");
         
