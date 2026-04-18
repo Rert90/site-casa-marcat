@@ -1,92 +1,139 @@
-// Hash SHA-256 pentru parola "1985"
-const SECRET_HASH = "7469584449830882e8e392686861614f04c643907c080004f2f09d84c3603d6d";
 
-// Funcție pentru generarea hash-ului (criptare)
-async function generateHash(text) {
-    const msgBuffer = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
+const COD_ACCES_ENCODAT = "MTk4NQ=="; 
 
-// Verificare parolă
-async function checkPassword() {
-    const input = document.getElementById('passwordInput').value;
-    const inputHash = await generateHash(input);
+/**
+ * FUNCȚIA DE LOGIN
+ */
+function checkPassword() {
+    const inputField = document.getElementById('passwordInput');
+    const errorMsg = document.getElementById('loginError');
+    
+    // Luăm ce a scris utilizatorul și ștergem eventualele spații accidentale
+    const parolaIntrodusa = inputField.value.trim();
+    
+    // Transformăm ce a scris utilizatorul în Base64 pentru a compara cu codul stocat
+    const inputEncodat = btoa(parolaIntrodusa);
 
-    if (inputHash === SECRET_HASH) {
+    if (inputEncodat === COD_ACCES_ENCODAT) {
+        // Dacă e corect, salvăm în sesiune și pornim aplicația
         sessionStorage.setItem('isAuthorized', 'true');
         runApp();
     } else {
-        const error = document.getElementById('loginError');
-        error.classList.remove('hidden');
-        document.getElementById('passwordInput').value = "";
+        // Dacă e greșit, arătăm eroarea
+        errorMsg.classList.remove('hidden');
+        errorMsg.style.display = "block";
+        inputField.value = "";
+        inputField.focus();
     }
 }
 
-// Încărcare date din data.db (Base64)
+/**
+ * FUNCȚIA CARE ÎNCARCĂ ȘI AFIȘEAZĂ DATELE
+ */
 async function runApp() {
+    const loginScreen = document.getElementById('loginScreen');
+    const mainContent = document.getElementById('mainContent');
+    const status = document.getElementById('status');
+    const tableBody = document.getElementById('tableBody');
+
     try {
+        // Încărcăm fișierul data.db (care conține CSV-ul tău encodat în Base64)
         const response = await fetch('data.db');
-        if (!response.ok) throw new Error("Fișierul data.db lipsește!");
+        if (!response.ok) throw new Error("Fișierul de date nu a putut fi găsit.");
         
-        const base64Data = await response.text();
-        const decodedData = atob(base64Data); // Decodificăm din Base64
+        const base64Content = await response.text();
         
-        const lines = decodedData.split(/\r?\n/).filter(line => line.trim() !== "");
-        window.allProducts = lines.map(line => {
-            const parts = line.split(';');
-            return { id: parts[0] || '', name: parts[1] || '' };
+        // Decodificăm conținutul bazei de date
+        const decodedCSV = atob(base64Content.trim());
+        
+        // Împărțim textul în linii
+        const lines = decodedCSV.split(/\r?\n/).filter(line => line.trim() !== "");
+        
+        // Salvăm datele într-o variabilă globală pentru a putea face search în ele
+        window.catalogProduse = lines.map(line => {
+            const coloane = line.split(';');
+            return {
+                id: coloane[0] ? coloane[0].trim() : '',
+                nume: coloane[1] ? coloane[1].trim() : ''
+            };
         });
 
-        renderTable(window.allProducts);
-        
-        // Comutăm ecranele
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('mainContent').classList.remove('hidden');
-        document.getElementById('status').textContent = `Total produse: ${window.allProducts.length}`;
-        
+        // Generăm rândurile în tabel
+        renderTable(window.catalogProduse);
+
+        // Ascundem ecranul de login și arătăm catalogul
+        loginScreen.style.display = "none";
+        mainContent.classList.remove('hidden');
+        status.textContent = `Total produse: ${window.catalogProduse.length}`;
+
     } catch (err) {
-        alert("Eroare critică: " + err.message);
+        console.error(err);
+        alert("Eroare la încărcare: Asigurați-vă că data.db este corect formatat Base64.");
     }
 }
 
-function renderTable(data) {
-    const body = document.getElementById('tableBody');
-    body.innerHTML = data.map(item => `
+/**
+ * FUNCȚIA DE DESENARE A TABELULUI
+ */
+function renderTable(date) {
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = date.map(p => `
         <tr>
-            <td><strong>${item.id}</strong></td>
-            <td>${item.name}</td>
+            <td><strong>${p.id}</strong></td>
+            <td>${p.nume}</td>
         </tr>
     `).join('');
 }
 
-// Filtrare (Search)
+/**
+ * LOGICA DE CĂUTARE (SEARCH)
+ */
 document.getElementById('searchInput').addEventListener('input', (e) => {
-    const terms = e.target.value.toLowerCase().trim().split(/\s+/);
-    const tableRows = document.querySelectorAll('#tableBody tr');
-    let visibleCount = 0;
+    const query = e.target.value.toLowerCase().trim().split(/\s+/);
+    const randuri = document.querySelectorAll('#tableBody tr');
+    let gasite = 0;
 
-    tableRows.forEach(row => {
-        const rowText = row.textContent.toLowerCase();
-        const isMatch = terms.every(term => rowText.includes(term));
+    randuri.forEach(rand => {
+        const textRand = rand.textContent.toLowerCase();
+        // Căutare "fuzzy": verifică dacă toate cuvintele se află în rând
+        const match = query.every(cuvant => textRand.includes(cuvant));
         
-        row.style.display = isMatch ? "" : "none";
-        if (isMatch) visibleCount++;
+        if (match) {
+            rand.style.display = "";
+            gasite++;
+        } else {
+            rand.style.display = "none";
+        }
     });
 
-    document.getElementById('status').textContent = `Găsite: ${visibleCount}`;
-    document.getElementById('noResults').className = visibleCount === 0 ? "" : "hidden";
+    document.getElementById('status').textContent = `Rezultate: ${gasite}`;
+    
+    // Arătăm mesajul de "nu s-a găsit nimic" dacă e cazul
+    const noRes = document.getElementById('noResults');
+    if (gasite === 0) {
+        noRes.classList.remove('hidden');
+        noRes.style.display = "block";
+    } else {
+        noRes.classList.add('hidden');
+        noRes.style.display = "none";
+    }
 });
 
-// Ascultăm tasta Enter pentru login
+/**
+ * EVENIMENTE AUXILIARE (Taste, Sesiune)
+ */
+
+// Permite logarea prin tasta "Enter"
 document.getElementById('passwordInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkPassword();
 });
-document.getElementById('loginBtn').addEventListener('click', checkPassword);
 
-// Păstrare sesiune la refresh
+// Verificăm dacă utilizatorul a fost deja autorizat în acest tab
 window.onload = () => {
     if (sessionStorage.getItem('isAuthorized') === 'true') {
         runApp();
     }
 };
+
+// Atribuim funcția butonului de login (dacă nu e deja pusă în HTML)
+document.getElementById('
