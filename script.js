@@ -1,3 +1,4 @@
+/*
 const PIN_HASH = '78e370b587b145920213731b7c7c725e512b3b6577c51c800218a7c764c532ae';
 
 async function sha256(str) {
@@ -27,6 +28,7 @@ async function sha256(str) {
     pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
     pinInput.focus();
 })();
+*/
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('tableBody');
@@ -63,17 +65,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    function normalize(str) {
+        return str.toLowerCase().replace(/[-_]/g, ' ');
+    }
+
     searchInput.addEventListener('input', (e) => {
-        const queryWords = e.target.value.toLowerCase().trim().split(/\s+/);
+        const queryWords = normalize(e.target.value).trim().split(/\s+/);
         const rows = tableBody.getElementsByTagName('tr');
         let visibleCount = 0;
 
         for (let i = 0; i < rows.length; i++) {
-            const rowText = rows[i].textContent.toLowerCase();
-            
-            // Verifică dacă toate cuvintele căutate se află în rând (indiferent de ordine)
+            const rowText = normalize(rows[i].textContent);
             const match = queryWords.every(word => rowText.includes(word));
-            
+
             if (match) {
                 rows[i].style.display = "";
                 visibleCount++;
